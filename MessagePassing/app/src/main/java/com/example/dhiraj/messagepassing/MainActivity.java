@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     MyReceiver myReceiver;
     TextView tx;
     SQLiteDatabase db;
+    int on = 0;
     float[] values1 = new float[10];
     float[] values2 = new float[10];
     float[] values3 = new float[10];
@@ -49,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
         g = new GraphView(this, values1, "TEST", horlabels, verlabels, GraphView.LINE);
         //l.addView(g);
         Button b1 = (Button)findViewById(R.id.button2);
+        System.out.print("starting broadcast");
+        myReceiver = new MyReceiver();
+
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,12 +67,12 @@ public class MainActivity extends AppCompatActivity {
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.print("starting broadcast");
-                myReceiver = new MyReceiver();
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(MyService.MY_ACTION);
-                registerReceiver(myReceiver, intentFilter);
-
+                if(on == 0) {
+                    on = 1;
+                    registerReceiver(myReceiver, intentFilter);
+                }
                 //Start our own service
 
 
@@ -79,9 +83,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 System.out.print("stopings broadcast");
-               unregisterReceiver(myReceiver);
-                //Start our own service
-
+                if(on == 1) {
+                    on = 0;
+                    unregisterReceiver(myReceiver);
+                    //Start our own service
+                }
 
             }
         });
@@ -92,13 +98,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getlast() {
-        String query = "SELECT  * FROM " + TABLE + " ORDER BY recID desc";
+        String query = "SELECT  * FROM " + TABLE + " ORDER BY created_at desc";
         Cursor cursor = null;
         // 2. get reference to writable DB
         int l = 0;
         try {
             //perform your database operations here ...
-            //cursor = db.rawQuery("select * from accel order by recid desc", null);
+            //cursor = db.rawQuery("select * from accel order by created_at desc", null);
             cursor = db.rawQuery(query, null);
 
             db.setTransactionSuccessful(); //commit your changes
@@ -135,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 //perform your database operations here ...
                 db.execSQL("create table accel ("
-                        + " recID integer PRIMARY KEY autoincrement, "
+                        + " created_at DATETIME DEFAULT CURRENT_TIMESTAMP, "
                         + " x float, "
                         + " y float,"
                         + " z float"
@@ -163,7 +169,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         // TODO Auto-generated method stub
-        unregisterReceiver(myReceiver);
+        if(on == 1){
+        unregisterReceiver(myReceiver);}
         super.onStop();
     }
 
