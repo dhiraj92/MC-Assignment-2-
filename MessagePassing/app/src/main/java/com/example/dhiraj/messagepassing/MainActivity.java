@@ -40,7 +40,29 @@ public class MainActivity extends AppCompatActivity {
     public static final String  TABLE = "accel";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        db = SQLiteDatabase.openOrCreateDatabase(DATABASE_FILE_PATH + File.separator + DATABASE_NAME, null);
+        String sdpath,sd1path,usbdiskpath, sd0path;
+        if (new File("/storage/extSdCard/").exists()) {
+            sdpath = "/storage/extSdCard/";
+            Log.i("Sd Cardext Path",sdpath);
+        }
+        if(new File("/storage/sdcard1/").exists())
+        {
+            sd1path="/storage/sdcard1/";
+            Log.i("Sd Card1 Path",sd1path);
+        }
+        if(new File("/storage/usbcard1/").exists())
+        {
+            usbdiskpath="/storage/usbcard1/";
+            Log.i("USB Path",usbdiskpath);
+        }
+        if(new File("/storage/sdcard0/").exists())
+        {
+            sd0path="/storage/sdcard0/";
+            Log.i("Sd Card0 Path",sd0path);
+        }
+
+        System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath().toString() + " af0 " + DATABASE_FILE_PATH + " ");
+        db = SQLiteDatabase.openOrCreateDatabase(Environment.getExternalStorageDirectory() + File.separator +"Mydata"+File.separator+ DATABASE_NAME, null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tx = (TextView)findViewById(R.id.textView);
