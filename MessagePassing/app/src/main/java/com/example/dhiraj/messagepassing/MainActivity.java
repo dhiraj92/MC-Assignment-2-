@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
     float[] values1 = new float[10];
     float[] values2 = new float[10];
     float[] values3 = new float[10];
-    String[] verlabels = new String[]{"7", "6", "5", "4", "3", "2","1","0"};
-    String[] horlabels = new String[]{"0", "1", "2", "3", "4", "5", "6","7"};
+    String[] verlabels = new String[]{"9","8","7", "6", "5", "4", "3", "2","1","0"};
+    String[] horlabels = new String[]{"0", "1", "2", "3", "4", "5", "6","7","8","9"};
     GraphView g;
     private Handler mHandler;
     LinearLayout l;
@@ -60,7 +60,11 @@ public class MainActivity extends AppCompatActivity {
             sd0path="/storage/sdcard0/";
             Log.i("Sd Card0 Path",sd0path);
         }
-
+        File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ "/Mydata");
+        boolean success = true;
+        if (!folder.exists()) {
+            success = folder.mkdir();
+        }
         System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath().toString() + " af0 " + DATABASE_FILE_PATH + " ");
         db = SQLiteDatabase.openOrCreateDatabase(Environment.getExternalStorageDirectory() + File.separator +"Mydata"+File.separator+ DATABASE_NAME, null);
         super.onCreate(savedInstanceState);
@@ -69,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         l = (LinearLayout) findViewById(R.id.lay);
         Intent intent = new Intent(this, MyService.class);
         startService(intent);
-        g = new GraphView(this, values1, "TEST", horlabels, verlabels, GraphView.LINE);
+        g = new GraphView(this, values1,values2,values3, "TEST", horlabels, verlabels, GraphView.LINE);
         //l.addView(g);
         Button b1 = (Button)findViewById(R.id.button2);
         System.out.print("starting broadcast");

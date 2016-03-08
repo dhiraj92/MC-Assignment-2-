@@ -35,12 +35,20 @@ public class GraphView extends View {
     float graphheight;
     float graphwidth;
 
-    public GraphView(Context context, float[] values, String title, String[] horlabels, String[] verlabels, boolean type) {
+    public GraphView(Context context, float[] values1,float[] values2,float[] values3,String title, String[] horlabels, String[] verlabels, boolean type) {
         super(context);
-        if (values == null)
-            values = new float[0];
+        if (values1 == null)
+            values1 = new float[0];
         else
-            this.values2 = values;
+            this.values1 = values1;
+        if (values2 == null)
+            values2 = new float[0];
+        else
+            this.values2 = values2;
+        if (values3 == null)
+            values3 = new float[0];
+        else
+            this.values3 = values3;
         if (title == null)
             title = "";
         else
@@ -154,8 +162,14 @@ public class GraphView extends View {
         for (int i = 0; i < values1.length; i++)
             if (values1[i] > largest)
                 largest = values1[i];
+        for (int i = 0; i < values2.length; i++)
+            if (values2[i] > largest)
+                largest = values2[i];
+        for (int i = 0; i < values3.length; i++)
+            if (values3[i] > largest)
+                largest = values3[i];
 
-        largest = 10;
+        //largest = 10;
         return largest;
     }
 
@@ -164,8 +178,15 @@ public class GraphView extends View {
         for (int i = 0; i < values1.length; i++)
             if (values1[i] < smallest)
                 smallest = values1[i];
+        for (int i = 0; i < values2.length; i++)
+            if (values2[i] < smallest)
+                smallest = values2[i];
+        for (int i = 0; i < values3.length; i++)
+            if (values3[i] < smallest)
+                smallest = values3[i];
 
-        smallest = -2;
+
+        //smallest = -2;
         return smallest;
     }
 
