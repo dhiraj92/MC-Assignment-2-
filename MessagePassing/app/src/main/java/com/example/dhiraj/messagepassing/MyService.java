@@ -24,8 +24,8 @@ public class MyService extends Service implements SensorEventListener {
         Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
         accelManage = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senseAccel = accelManage.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        accelManage.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
-
+//        accelManage.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
+        accelManage.registerListener(this, senseAccel, 1000000);
     }
     @Override
     public IBinder onBind(Intent arg0) {
