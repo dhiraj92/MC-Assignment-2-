@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,9 +26,9 @@ public class MainActivity extends AppCompatActivity {
     TextView tx;
     SQLiteDatabase db;
     int on = 0;
-    float[] values1 = new float[10];
-    float[] values2 = new float[10];
-    float[] values3 = new float[10];
+    float[] Xvalues = new float[10];
+    float[] Yvalues = new float[10];
+    float[] Zvalues = new float[10];
     String[] verlabels = new String[]{"9","8","7", "6", "5", "4", "3", "2","1","0"};
     String[] horlabels = new String[]{"0", "1", "2", "3", "4", "5", "6","7","8","9"};
     GraphView g;
@@ -40,26 +39,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String  TABLE = "accel";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        String sdpath,sd1path,usbdiskpath, sd0path;
-        if (new File("/storage/extSdCard/").exists()) {
-            sdpath = "/storage/extSdCard/";
-            Log.i("Sd Cardext Path",sdpath);
-        }
-        if(new File("/storage/sdcard1/").exists())
-        {
-            sd1path="/storage/sdcard1/";
-            Log.i("Sd Card1 Path",sd1path);
-        }
-        if(new File("/storage/usbcard1/").exists())
-        {
-            usbdiskpath="/storage/usbcard1/";
-            Log.i("USB Path",usbdiskpath);
-        }
-        if(new File("/storage/sdcard0/").exists())
-        {
-            sd0path="/storage/sdcard0/";
-            Log.i("Sd Card0 Path",sd0path);
-        }
         File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ "/Mydata");
         boolean success = true;
         if (!folder.exists()) {
@@ -73,9 +52,9 @@ public class MainActivity extends AppCompatActivity {
         l = (LinearLayout) findViewById(R.id.lay);
         Intent intent = new Intent(this, MyService.class);
         startService(intent);
-        g = new GraphView(this, values1,values2,values3, "TEST", horlabels, verlabels, GraphView.LINE);
+        g = new GraphView(this, Xvalues, Yvalues, Zvalues, "TEST", horlabels, verlabels, GraphView.LINE);
         //l.addView(g);
-        Button b1 = (Button)findViewById(R.id.button2);
+        Button b1 = (Button)findViewById(R.id.dispButton);
         System.out.print("starting broadcast");
         myReceiver = new MyReceiver();
 
@@ -84,18 +63,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 l.removeView(g);
                 getlast();
-                g.setValues(values1, values2, values3);
+                g.setValues(Xvalues, Yvalues, Zvalues);
                 l.addView(g);
             }
         });
 
-        Button b2 = (Button)findViewById(R.id.button);
-        b2.setOnClickListener(new View.OnClickListener() {
+        Button startButton = (Button)findViewById(R.id.startButton);
+        startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(MyService.MY_ACTION);
-                if(on == 0) {
+                if (on == 0) {
                     on = 1;
                     registerReceiver(myReceiver, intentFilter);
                 }
@@ -104,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        Button b3 = (Button)findViewById(R.id.button3);
-        b3.setOnClickListener(new View.OnClickListener() {
+        Button stopButton = (Button)findViewById(R.id.stopButton);
+        stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.out.print("stopings broadcast");
-                if(on == 1) {
+                if (on == 1) {
                     on = 0;
                     unregisterReceiver(myReceiver);
                     //Start our own service
@@ -144,9 +123,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (cursor.moveToFirst()) {
             do {
-               values1[l] = Float.parseFloat(cursor.getString(1));
-                values2[l] = Float.parseFloat(cursor.getString(2));
-                values3[l] = Float.parseFloat(cursor.getString(3));
+               Xvalues[l] = Float.parseFloat(cursor.getString(1));
+                Yvalues[l] = Float.parseFloat(cursor.getString(2));
+                Zvalues[l] = Float.parseFloat(cursor.getString(3));
                 l++;
             } while (cursor.moveToNext() && l <10);
         }
