@@ -15,14 +15,15 @@
         android:inputType="number"
         android:hint="110"
         android:ems="10"
-        android:id="@+id/editText"
+        android:id="@+id/pid"
         android:width="60dp"
-        android:layout_alignLeft="@+id/editText2"
-        android:layout_alignStart="@+id/editText2"
-        android:layout_alignRight="@+id/editText2"
-        android:layout_alignEnd="@+id/editText2"
+        android:layout_alignLeft="@+id/age"
+        android:layout_alignStart="@+id/age"
+        android:layout_alignRight="@+id/age"
+        android:layout_alignEnd="@+id/age"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:text="1" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -30,13 +31,14 @@
         android:inputType="number"
         android:ems="10"
         android:hint="25"
-        android:id="@+id/editText2"
+        android:id="@+id/age"
         android:width="60dp"
         android:layout_alignBottom="@+id/textView3"
-        android:layout_alignRight="@+id/editText3"
-        android:layout_alignEnd="@+id/editText3"
-        android:layout_alignLeft="@+id/editText3"
-        android:layout_alignStart="@+id/editText3" />
+        android:layout_alignRight="@+id/patientName"
+        android:layout_alignEnd="@+id/patientName"
+        android:layout_alignLeft="@+id/patientName"
+        android:layout_alignStart="@+id/patientName"
+        android:text="23" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -44,13 +46,14 @@
         android:inputType="textPersonName"
         android:hint="Smith Glaxo"
         android:ems="10"
-        android:id="@+id/editText3"
+        android:id="@+id/patientName"
         android:layout_marginTop="44dp"
-        android:layout_below="@+id/editText2"
+        android:layout_below="@+id/age"
         android:layout_toRightOf="@+id/textView4"
         android:layout_toEndOf="@+id/textView4"
         android:layout_marginLeft="87dp"
-        android:layout_marginStart="20dp" />
+        android:layout_marginStart="20dp"
+        android:text="Patient" />
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -58,25 +61,27 @@
         android:orientation="vertical"
         android:gravity="center_vertical"
         android:id="@+id/radioGroup"
-        android:layout_below="@+id/editText3"
+        android:layout_below="@+id/patientName"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="50dp">
 
-        <RadioButton android:id="@+id/radio_pirates"
+        <RadioButton android:id="@+id/Male"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Male"
             android:layout_below="@+id/radioGroup"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:checked="true" />
 
-        <RadioButton android:id="@+id/radio_ninjas"
+        <RadioButton android:id="@+id/Female"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Female"
-            android:layout_below="@+id/radio_pirates"
-            android:layout_alignParentLeft="true" />
+            android:layout_below="@+id/Male"
+            android:layout_alignParentLeft="true"
+            android:checked="false" />
     </RadioGroup>
 
     <Button
@@ -95,7 +100,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="ID"
         android:id="@+id/textView2"
-        android:layout_alignBottom="@+id/editText"
+        android:layout_alignBottom="@+id/pid"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -118,7 +123,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Patient Name"
         android:id="@+id/textView4"
-        android:layout_alignBottom="@+id/editText3"
+        android:layout_alignBottom="@+id/patientName"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="44dp" />

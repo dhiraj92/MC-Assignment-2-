@@ -49,11 +49,15 @@ public class MainActivity extends AppCompatActivity {
     //    public static final String  DATABASE_FILE_PATH = "/sdcard";
     public static final String DATABASE_NAME = "svellangDatabase";
     public static final String DATABASE_LOCATION = Environment.getExternalStorageDirectory() + File.separator + "Mydata" + File.separator + DATABASE_NAME;
-    public static final String TABLE = "accel";
+    public static String TABLE = "accel";
     int serverResponseCode = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String filenamePaitent = getIntent().getStringExtra("paitentData");
+        System.out.print(filenamePaitent);
+        TABLE = filenamePaitent;
+        Log.e("uploadFile", "Source File not exist :"+ filenamePaitent);
         File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Mydata");
         boolean success = true;
         if (!folder.exists()) {
@@ -325,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
             db.beginTransaction();
             try {
                 //perform your database operations here ...
-                db.execSQL("create table accel ("
+                db.execSQL("create table "+TABLE+" ("
                         + " created_at DATETIME DEFAULT CURRENT_TIMESTAMP, "
                         + " x float, "
                         + " y float,"
@@ -371,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
             txtStatus.setText("" + x + "" + y + "" + z);
             try {
                 //perform your database operations here ...
-                db.execSQL("insert into accel(x,y,z) values ('" + x + "', '" + y + "','" + z + "' );");
+                db.execSQL("insert into "+TABLE+" (x,y,z) values ('" + x + "', '" + y + "','" + z + "' );");
                 //db.setTransactionSuccessful(); //commit your changes
             } catch (SQLiteException e) {
                 //report problem
