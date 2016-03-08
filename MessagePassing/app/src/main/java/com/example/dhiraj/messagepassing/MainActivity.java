@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-                        uploadFile(DATABASE_LOCATION, "https://impact.asu.edu/CSE535Spring16Folder/UploadToServer.php", DATABASE_NAME);
+                        uploadFile(DATABASE_LOCATION, "https://impact.asu.edu/Appenstance/UploadToServerGPS.php", DATABASE_NAME);
                     }
                 }).start();
             }
