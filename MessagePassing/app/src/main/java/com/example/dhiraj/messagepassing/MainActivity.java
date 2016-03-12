@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     //    public static final String  DATABASE_FILE_PATH = "/sdcard";
     public static final String DATABASE_NAME = "svellangDatabase";
     public static final String DATABASE_LOCATION = Environment.getExternalStorageDirectory() + File.separator + "Mydata" + File.separator + DATABASE_NAME;
-    public static String TABLE = "accel";
+//    public static String TABLE = "accel";
     int serverResponseCode = 0;
 
     @Override
