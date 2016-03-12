@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.dhiraj.messagepassing.Main2Activity">
+    tools:context=".InputActivity">
 
     <EditText
         android:layout_width="wrap_content"
@@ -22,8 +22,7 @@
         android:layout_alignRight="@+id/age"
         android:layout_alignEnd="@+id/age"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="8dp"
-        android:text="1" />
+        android:layout_marginTop="8dp" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -37,8 +36,7 @@
         android:layout_alignRight="@+id/patientName"
         android:layout_alignEnd="@+id/patientName"
         android:layout_alignLeft="@+id/patientName"
-        android:layout_alignStart="@+id/patientName"
-        android:text="23" />
+        android:layout_alignStart="@+id/patientName" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -52,8 +50,7 @@
         android:layout_toRightOf="@+id/textView4"
         android:layout_toEndOf="@+id/textView4"
         android:layout_marginLeft="87dp"
-        android:layout_marginStart="20dp"
-        android:text="Patient" />
+        android:layout_marginStart="20dp" />
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -127,5 +124,15 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="44dp" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear Fields"
+        android:id="@+id/buttonClear"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

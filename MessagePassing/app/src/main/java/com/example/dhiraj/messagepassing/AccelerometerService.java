@@ -9,7 +9,7 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.widget.Toast;
 
-public class MyService extends Service implements SensorEventListener {
+public class AccelerometerService extends Service implements SensorEventListener {
     private SensorManager accelManage;
     private Sensor senseAccel;
     float accelValuesX = 0.0f;
@@ -21,10 +21,9 @@ public class MyService extends Service implements SensorEventListener {
 
     @Override
     public void onCreate(){
-        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+
         accelManage = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senseAccel = accelManage.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-//        accelManage.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
         accelManage.registerListener(this, senseAccel, 1000000);
     }
     @Override
@@ -61,12 +60,6 @@ public class MyService extends Service implements SensorEventListener {
             intent.putExtra("Z", accelValuesZ);
 
             sendBroadcast(intent);
-
-            /*if(index == 10){
-                accelManage.unregisterListener(this);
-
-            }*/
-
             }
         }
 

@@ -33,7 +33,7 @@ import java.net.URL;
 import java.sql.Timestamp;
 
 
-public class MainActivity extends AppCompatActivity {
+public class AccelerometerActivity extends AppCompatActivity {
 
     MyReceiver myReceiver;
     TextView txtStatus;
@@ -69,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
         }
         db = SQLiteDatabase.openOrCreateDatabase(DATABASE_LOCATION, null);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_accelerometer);
         txtStatus = (TextView) findViewById(R.id.textView);
         l = (LinearLayout) findViewById(R.id.lay);
-        Intent intent = new Intent(this, MyService.class);
+        Intent intent = new Intent(this, AccelerometerService.class);
         startService(intent);
         objGraph = new GraphView(this, Xvalues, Yvalues, Zvalues, "Acceleration", horlabels, verlabels, GraphView.LINE);
         System.out.print("starting broadcast");
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 downloadButton.setEnabled(false);
                 recordButton.setEnabled(false);
                 IntentFilter intentFilter = new IntentFilter();
-                intentFilter.addAction(MyService.MY_ACTION);
+                intentFilter.addAction(AccelerometerService.MY_ACTION);
                 if (on == 0) {
                     on = 1;
                     registerReceiver(myReceiver, intentFilter);
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (SQLException e) {
 
-            Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(AccelerometerActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
 
