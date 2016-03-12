@@ -16,6 +16,7 @@ public class GraphView extends View {
 
     public static boolean BAR = false;
     public static boolean LINE = true;
+    public static boolean displayGraph=false;
 
     private Paint paint;
     private float[] values1;
@@ -127,9 +128,9 @@ public class GraphView extends View {
 
             }*/
             } else {
-                    drawlines(values1,canvas,"red");
-                    drawlines(values2,canvas, "blue");
-                    drawlines(values3,canvas, "green");
+                    drawlines(values1, canvas, "red");
+                    drawlines(values2, canvas, "blue");
+                    drawlines(values3, canvas, "green");
                 }
             }
         }
@@ -150,8 +151,8 @@ public class GraphView extends View {
             if (i > 0)
                 paint.setColor(Color.parseColor(color));
             paint.setStrokeWidth(5.0f);
-
-            canvas.drawLine(((i - 1) * colwidth) + (horstart + 1) + halfcol, (border - lasth) + graphheight, (i * colwidth) + (horstart + 1) + halfcol, (border - h) + graphheight, paint);
+            if (displayGraph)
+                canvas.drawLine(((i - 1) * colwidth) + (horstart + 1) + halfcol, (border - lasth) + graphheight, (i * colwidth) + (horstart + 1) + halfcol, (border - h) + graphheight, paint);
             lasth = h;
     }
 

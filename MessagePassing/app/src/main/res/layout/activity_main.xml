@@ -52,7 +52,8 @@
         android:text="Stop"
         android:id="@+id/stopButton"
         android:layout_alignBottom="@+id/startButton"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:enabled="false" />
 
     <Button
         style="?android:attr/buttonStyleSmall"

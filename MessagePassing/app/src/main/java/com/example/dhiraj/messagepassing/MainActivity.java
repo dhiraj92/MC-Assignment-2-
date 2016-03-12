@@ -28,15 +28,17 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
+
     MyReceiver myReceiver;
     TextView txtStatus;
     SQLiteDatabase db;
+
+
     int on = 0;
     float[] Xvalues = new float[10];
     float[] Yvalues = new float[10];
@@ -49,19 +51,19 @@ public class MainActivity extends AppCompatActivity {
     //    public static final String  DATABASE_FILE_PATH = "/sdcard";
     public static final String DATABASE_NAME = "svellangDatabase";
     public static final String DATABASE_LOCATION = Environment.getExternalStorageDirectory() + File.separator + "Mydata" + File.separator + DATABASE_NAME;
-//    public static String TABLE = "accel";
+    public static String TABLE = "accel";
     int serverResponseCode = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         String filenamePaitent = getIntent().getStringExtra("paitentData");
         System.out.print(filenamePaitent);
         TABLE = filenamePaitent;
         Log.e("uploadFile", "Source File not exist :"+ filenamePaitent);
         File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Mydata");
-        boolean success = true;
         if (!folder.exists()) {
-            success = folder.mkdir();
+            folder.mkdir();
         }
         db = SQLiteDatabase.openOrCreateDatabase(DATABASE_LOCATION, null);
         super.onCreate(savedInstanceState);
@@ -71,63 +73,77 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MyService.class);
         startService(intent);
         g = new GraphView(this, Xvalues, Yvalues, Zvalues, "Acceleration", horlabels, verlabels, GraphView.LINE);
-        Button dispButton = (Button) findViewById(R.id.dispButton);
         System.out.print("starting broadcast");
         myReceiver = new MyReceiver();
 
+        final Button dispButton = (Button) findViewById(R.id.dispButton);
+        final Button recordButton = (Button) findViewById(R.id.startButton);
+        final Button stopButton = (Button) findViewById(R.id.stopButton);
+        final Button uploadButton = (Button) findViewById(R.id.uploadButton);
+        final Button downloadButton = (Button) findViewById(R.id.downloadButton);
         dispButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 l.removeView(g);
-                getlast();
+                retrieveLastData();
                 g.setValues(Xvalues, Yvalues, Zvalues);
+                g.displayGraph=true;
                 l.addView(g);
             }
         });
 
-        Button startButton = (Button) findViewById(R.id.startButton);
-        startButton.setOnClickListener(new View.OnClickListener() {
+        recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dispButton.setEnabled(false);
+                stopButton.setEnabled(true);
+                uploadButton.setEnabled(false);
+                downloadButton.setEnabled(false);
+                recordButton.setEnabled(false);
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(MyService.MY_ACTION);
                 if (on == 0) {
                     on = 1;
                     registerReceiver(myReceiver, intentFilter);
                 }
-                //Start our own service
-
-
             }
         });
-        Button stopButton = (Button) findViewById(R.id.stopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.out.print("stopings broadcast");
                 if (on == 1) {
                     on = 0;
+                    g.displayGraph=false;
+                    g.invalidate();
+                    dispButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    uploadButton.setEnabled(true);
+                    downloadButton.setEnabled(true);
+                    recordButton.setEnabled(true);
                     unregisterReceiver(myReceiver);
-                    //Start our own service
                 }
 
             }
         });
 
-        Button uploadButton = (Button) findViewById(R.id.uploadButton);
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //dialog = ProgressDialog.show(UploadToServer.this, "", "Uploading file...", true);
                 new Thread(new Runnable() {
                     public void run() {
                         runOnUiThread(new Runnable() {
                             public void run() {
+                                dispButton.setEnabled(false);
+                                stopButton.setEnabled(false);
+                                uploadButton.setEnabled(false);
+                                downloadButton.setEnabled(false);
+                                recordButton.setEnabled(false);
                                 txtStatus.setText("uploading started.....");
                             }
                         });
 
-                        uploadFile(DATABASE_LOCATION, "https://impact.asu.edu/Appenstance/UploadToServerGPS.php", DATABASE_NAME);
+                        uploadFile(DATABASE_LOCATION, "https://impact.asu.edu/Appenstance/UploadToServerGPS.php", DATABASE_NAME,dispButton,stopButton,uploadButton,downloadButton,recordButton);
                     }
                 }).start();
             }
@@ -135,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //@Begin upload
-    public int uploadFile(final String sourceFileUri, String strDestinationUri, String fileName) {
+    public int uploadFile(final String sourceFileUri, String strDestinationUri, String fileName,final Button dispButton,final Button stopButton,final Button uploadButton,final Button downloadButton,final Button recordButton) {
         final String uploadErrorMsg="Upload failed.";
         //Referred to http://tinyurl.com/or8wql2
         HttpsURLConnection conn = null;
@@ -156,6 +172,11 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     txtStatus.setText("Source File not exist :"
                             + sourceFileUri);
+                    dispButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    uploadButton.setEnabled(true);
+                    downloadButton.setEnabled(true);
+                    recordButton.setEnabled(true);
                 }
             });
 
@@ -191,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
                     sc.init(null, trustAllCerts, new java.security.SecureRandom());
                     HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
                 } catch (Exception e) {
+                    return 0;
                 }
                 URL url = new URL(strDestinationUri);
 
@@ -251,6 +273,11 @@ public class MainActivity extends AppCompatActivity {
                             String msg = "File Upload Completed.";
 
                             txtStatus.setText(msg);
+                            dispButton.setEnabled(true);
+                            stopButton.setEnabled(false);
+                            uploadButton.setEnabled(true);
+                            downloadButton.setEnabled(true);
+                            recordButton.setEnabled(true);
                         }
                     });
                 }
@@ -266,6 +293,11 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         txtStatus.setText(uploadErrorMsg);
+                        dispButton.setEnabled(true);
+                        stopButton.setEnabled(false);
+                        uploadButton.setEnabled(true);
+                        downloadButton.setEnabled(true);
+                        recordButton.setEnabled(true);
                     }
                 });
 
@@ -276,6 +308,11 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         txtStatus.setText(uploadErrorMsg);
+                        dispButton.setEnabled(true);
+                        stopButton.setEnabled(false);
+                        uploadButton.setEnabled(true);
+                        downloadButton.setEnabled(true);
+                        recordButton.setEnabled(true);
                     }
                 });
                 Log.e("File upload Exception", "Exception : " + e.getMessage(), e);
@@ -287,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
     //@End upload
 
 
-    private void getlast() {
+    private void retrieveLastData() {
         String query = "SELECT  * FROM " + TABLE + " ORDER BY created_at desc";
         Cursor cursor = null;
         // 2. get reference to writable DB
@@ -314,9 +351,6 @@ public class MainActivity extends AppCompatActivity {
                 l++;
             } while (cursor.moveToNext() && l < 10);
         }
-
-        //Log.d("getAllBooks()", books.toString());
-
     }
 
     protected void onStart() {
@@ -382,9 +416,6 @@ public class MainActivity extends AppCompatActivity {
             } finally {
                 //db.endTransaction();
             }
-
-            //select * from tbl_name order by id desc
-
         }
 
     }
