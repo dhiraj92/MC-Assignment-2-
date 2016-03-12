@@ -30,6 +30,7 @@ import javax.net.ssl.X509TrustManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -40,12 +41,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     int on = 0;
+    Timestamp currentTime=null;
     float[] Xvalues = new float[10];
     float[] Yvalues = new float[10];
     float[] Zvalues = new float[10];
     String[] verlabels = new String[]{"9", "8", "7", "6", "5", "4", "3", "2", "1", "0"};
     String[] horlabels = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
-    GraphView g;
+    GraphView objGraph;
     private Handler mHandler;
     LinearLayout l;
     //    public static final String  DATABASE_FILE_PATH = "/sdcard";
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         l = (LinearLayout) findViewById(R.id.lay);
         Intent intent = new Intent(this, MyService.class);
         startService(intent);
-        g = new GraphView(this, Xvalues, Yvalues, Zvalues, "Acceleration", horlabels, verlabels, GraphView.LINE);
+        objGraph = new GraphView(this, Xvalues, Yvalues, Zvalues, "Acceleration", horlabels, verlabels, GraphView.LINE);
         System.out.print("starting broadcast");
         myReceiver = new MyReceiver();
 
@@ -84,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
         dispButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                l.removeView(g);
+                l.removeView(objGraph);
                 retrieveLastData();
-                g.setValues(Xvalues, Yvalues, Zvalues);
-                g.displayGraph=true;
-                l.addView(g);
+                objGraph.setValues(Xvalues, Yvalues, Zvalues);
+                objGraph.displayGraph=true;
+                l.addView(objGraph);
             }
         });
 
@@ -114,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
                 System.out.print("stopings broadcast");
                 if (on == 1) {
                     on = 0;
-                    g.displayGraph=false;
-                    g.invalidate();
+                    objGraph.displayGraph=false;
+                    objGraph.invalidate();
                     dispButton.setEnabled(true);
                     stopButton.setEnabled(false);
                     uploadButton.setEnabled(true);
@@ -400,22 +402,39 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             // TODO Auto-generated method stub
-
-            float x = arg1.getFloatExtra("X", 0.0f);
-            float y = arg1.getFloatExtra("Y", 0.0f);
-            float z = arg1.getFloatExtra("Z", 0.0f);
-            //TextView tv = (TextView) findViewById(R.id.textView);
-            Log.d("msg", "hi");
-            txtStatus.setText("" + x + "" + y + "" + z);
-            try {
-                //perform your database operations here ...
-                db.execSQL("insert into "+TABLE+" (x,y,z) values ('" + x + "', '" + y + "','" + z + "' );");
-                //db.setTransactionSuccessful(); //commit your changes
-            } catch (SQLiteException e) {
-                //report problem
-            } finally {
-                //db.endTransaction();
+            long elapsedTime=0;
+            boolean paintGraph=false;
+            if (currentTime==null){
+                currentTime=new Timestamp(new java.util.Date().getTime());
+                paintGraph=true;
             }
+            else {
+                Timestamp t=new Timestamp(new java.util.Date().getTime());
+                if (t.getTime()-currentTime.getTime()>999){
+                    //Only once in a second
+                    Log.d("Time", String.valueOf(t.getTime()-currentTime.getTime()));
+                    currentTime=t;
+                    paintGraph=true;
+                }
+            }
+            if (paintGraph){
+                float x = arg1.getFloatExtra("X", 0.0f);
+                float y = arg1.getFloatExtra("Y", 0.0f);
+                float z = arg1.getFloatExtra("Z", 0.0f);
+                //TextView tv = (TextView) findViewById(R.id.textView);
+                Log.d("msg", "hi");
+                txtStatus.setText(x + "," + y + "," + z);
+                try {
+                    //perform your database operations here ...
+                    db.execSQL("insert into "+TABLE+" (x,y,z) values ('" + x + "', '" + y + "','" + z + "' );");
+                    //db.setTransactionSuccessful(); //commit your changes
+                } catch (SQLiteException e) {
+                    //report problem
+                } finally {
+                    //db.endTransaction();
+                }
+            }
+
         }
 
     }
