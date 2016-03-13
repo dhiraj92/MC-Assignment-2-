@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,9 +35,15 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
+import java.util.Date;
 
 
 public class AccelerometerActivity extends AppCompatActivity {
@@ -41,7 +54,7 @@ public class AccelerometerActivity extends AppCompatActivity {
 
 
     int on = 0;
-    Timestamp currentTime=null;
+    Timestamp currentTime = null;
     float[] Xvalues = new float[10];
     float[] Yvalues = new float[10];
     float[] Zvalues = new float[10];
@@ -55,6 +68,11 @@ public class AccelerometerActivity extends AppCompatActivity {
     public static final String DATABASE_LOCATION = Environment.getExternalStorageDirectory() + File.separator + "Mydata" + File.separator + DATABASE_NAME;
     public static String TABLE = "accel";
     int serverResponseCode = 0;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +80,7 @@ public class AccelerometerActivity extends AppCompatActivity {
         String filenamePaitent = getIntent().getStringExtra("paitentData");
         System.out.print(filenamePaitent);
         TABLE = filenamePaitent;
-        Log.e("uploadFile", "Source File not exist :"+ filenamePaitent);
+        Log.e("uploadFile", "Source File not exist :" + filenamePaitent);
         File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Mydata");
         if (!folder.exists()) {
             folder.mkdir();
@@ -89,7 +107,7 @@ public class AccelerometerActivity extends AppCompatActivity {
                 l.removeView(objGraph);
                 retrieveLastData();
                 objGraph.setValues(Xvalues, Yvalues, Zvalues);
-                objGraph.displayGraph=true;
+                objGraph.displayGraph = true;
                 l.addView(objGraph);
             }
         });
@@ -116,7 +134,7 @@ public class AccelerometerActivity extends AppCompatActivity {
                 System.out.print("stopings broadcast");
                 if (on == 1) {
                     on = 0;
-                    objGraph.displayGraph=false;
+                    objGraph.displayGraph = false;
                     objGraph.invalidate();
                     dispButton.setEnabled(true);
                     stopButton.setEnabled(false);
@@ -145,16 +163,41 @@ public class AccelerometerActivity extends AppCompatActivity {
                             }
                         });
 
-                        uploadFile(DATABASE_LOCATION, "https://impact.asu.edu/Appenstance/UploadToServerGPS.php", DATABASE_NAME,dispButton,stopButton,uploadButton,downloadButton,recordButton);
+                        uploadFile(DATABASE_LOCATION, "https://impact.asu.edu/Appenstance/UploadToServerGPS.php", DATABASE_NAME, dispButton, stopButton, uploadButton, downloadButton, recordButton);
                     }
                 }).start();
             }
         });
+
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                dispButton.setEnabled(false);
+                                stopButton.setEnabled(false);
+                                uploadButton.setEnabled(false);
+                                downloadButton.setEnabled(false);
+                                recordButton.setEnabled(false);
+                                txtStatus.setText("checking file in server.....");
+                            }
+                        });
+
+                        downloadFile(DATABASE_LOCATION, "https://impact.asu.edu/Appenstance/UploadToServerGPS.php", DATABASE_NAME, dispButton, stopButton, uploadButton, downloadButton, recordButton);
+                    }
+                }).start();
+            }
+        });
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     //@Begin upload
-    public int uploadFile(final String sourceFileUri, String strDestinationUri, String fileName,final Button dispButton,final Button stopButton,final Button uploadButton,final Button downloadButton,final Button recordButton) {
-        final String uploadErrorMsg="Upload failed.";
+    public int uploadFile(final String sourceFileUri, String strDestinationUri, String fileName, final Button dispButton, final Button stopButton, final Button uploadButton, final Button downloadButton, final Button recordButton) {
+        final String uploadErrorMsg = "Upload failed.";
         //Referred to http://tinyurl.com/or8wql2
         HttpsURLConnection conn = null;
         DataOutputStream dos = null;
@@ -194,16 +237,16 @@ public class AccelerometerActivity extends AppCompatActivity {
                 // Create a trust manager that does not validate certificate chains
                 TrustManager[] trustAllCerts = new TrustManager[]{
                         new X509TrustManager() {
-                            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            public X509Certificate[] getAcceptedIssuers() {
                                 return null;
                             }
 
                             public void checkClientTrusted(
-                                    java.security.cert.X509Certificate[] certs, String authType) {
+                                    X509Certificate[] certs, String authType) {
                             }
 
                             public void checkServerTrusted(
-                                    java.security.cert.X509Certificate[] certs, String authType) {
+                                    X509Certificate[] certs, String authType) {
                             }
                         }
                 };
@@ -211,7 +254,7 @@ public class AccelerometerActivity extends AppCompatActivity {
 // Install the all-trusting trust manager
                 try {
                     SSLContext sc = SSLContext.getInstance("SSL");
-                    sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                    sc.init(null, trustAllCerts, new SecureRandom());
                     HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
                 } catch (Exception e) {
                     return 0;
@@ -325,6 +368,131 @@ public class AccelerometerActivity extends AppCompatActivity {
     }
     //@End upload
 
+    public void downloadFile(final String sourceFileUri, String strDestinationUri, String fileName, final Button dispButton, final Button stopButton, final Button uploadButton, final Button downloadButton, final Button recordButton) {
+        final String downloadErrorMsg = "Download failed.";
+
+        try {
+
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        public void checkClientTrusted(
+                                X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(
+                                X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+
+            // Install the all-trusting trust manager
+            try {
+                SSLContext sc = SSLContext.getInstance("SSL");
+                sc.init(null, trustAllCerts, new SecureRandom());
+                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        txtStatus.setText(downloadErrorMsg);
+                        dispButton.setEnabled(true);
+                        stopButton.setEnabled(false);
+                        uploadButton.setEnabled(true);
+                        downloadButton.setEnabled(true);
+                        recordButton.setEnabled(true);
+                    }
+                });
+            }
+
+            // Log.d(TAG, "downloading database");
+            URL url = new URL("https://impact.asu.edu/Appenstance/svellangDatabase");
+            /* Open a connection to that URL. */
+            HttpsURLConnection ucon = (HttpsURLConnection) url.openConnection();
+            /*
+            * Define InputStreams to read from the URLConnection.
+            */
+            InputStream is = ucon.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            /*
+            * Read bytes to the Buffer until there is nothing more to read(-1).
+            */
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream(50);
+            int current = 0;
+            while ((current = bis.read()) != -1) {
+                buffer.write((byte) current);
+            }
+
+            /* Convert the Bytes read to a String. */
+            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/" + "Mydata/svellangDatabase_test"));
+            // Select storage location
+            //Context context = this;
+            //fos = context.openFileOutput(Environment.getExternalStorageDirectory() + File.separator +"Downloaded.txt", Context.MODE_PRIVATE);
+            fos.write(buffer.toByteArray());
+            fos.close();
+            // Log.d(TAG, "downloaded");
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    txtStatus.setText("File Download Completed");
+                    dispButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    uploadButton.setEnabled(true);
+                    downloadButton.setEnabled(true);
+                    recordButton.setEnabled(true);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    txtStatus.setText(downloadErrorMsg);
+                    dispButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    uploadButton.setEnabled(true);
+                    downloadButton.setEnabled(true);
+                    recordButton.setEnabled(true);
+                }
+            });
+
+            Log.e("Download file to server", "error: " + e.getMessage(), e);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    txtStatus.setText(downloadErrorMsg);
+                    dispButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    uploadButton.setEnabled(true);
+                    downloadButton.setEnabled(true);
+                    recordButton.setEnabled(true);
+                }
+            });
+
+            Log.e("Download file to server", "error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    txtStatus.setText(downloadErrorMsg);
+                    dispButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    uploadButton.setEnabled(true);
+                    downloadButton.setEnabled(true);
+                    recordButton.setEnabled(true);
+                }
+            });
+
+            Log.e("Download file to server", "error: " + e.getMessage(), e);
+        }
+    }
 
     private void retrieveLastData() {
         String query = "SELECT  * FROM " + TABLE + " ORDER BY created_at desc";
@@ -365,7 +533,7 @@ public class AccelerometerActivity extends AppCompatActivity {
             db.beginTransaction();
             try {
                 //perform your database operations here ...
-                db.execSQL("create table "+TABLE+" ("
+                db.execSQL("create table " + TABLE + " ("
                         + " created_at DATETIME DEFAULT CURRENT_TIMESTAMP, "
                         + " x float, "
                         + " y float,"
@@ -386,6 +554,22 @@ public class AccelerometerActivity extends AppCompatActivity {
 
 
         super.onStart();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Accelerometer Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.example.dhiraj.messagepassing/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
     }
 
     @Override
@@ -395,6 +579,22 @@ public class AccelerometerActivity extends AppCompatActivity {
             unregisterReceiver(myReceiver);
         }
         super.onStop();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Accelerometer Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.example.dhiraj.messagepassing/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.disconnect();
     }
 
     private class MyReceiver extends BroadcastReceiver {
@@ -402,22 +602,21 @@ public class AccelerometerActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             // TODO Auto-generated method stub
-            long elapsedTime=0;
-            boolean paintGraph=false;
-            if (currentTime==null){
-                currentTime=new Timestamp(new java.util.Date().getTime());
-                paintGraph=true;
-            }
-            else {
-                Timestamp t=new Timestamp(new java.util.Date().getTime());
-                if (t.getTime()-currentTime.getTime()>999){
+            long elapsedTime = 0;
+            boolean paintGraph = false;
+            if (currentTime == null) {
+                currentTime = new Timestamp(new Date().getTime());
+                paintGraph = true;
+            } else {
+                Timestamp t = new Timestamp(new Date().getTime());
+                if (t.getTime() - currentTime.getTime() > 999) {
                     //Only once in a second
-                    Log.d("Time", String.valueOf(t.getTime()-currentTime.getTime()));
-                    currentTime=t;
-                    paintGraph=true;
+                    Log.d("Time", String.valueOf(t.getTime() - currentTime.getTime()));
+                    currentTime = t;
+                    paintGraph = true;
                 }
             }
-            if (paintGraph){
+            if (paintGraph) {
                 float x = arg1.getFloatExtra("X", 0.0f);
                 float y = arg1.getFloatExtra("Y", 0.0f);
                 float z = arg1.getFloatExtra("Z", 0.0f);
@@ -426,7 +625,7 @@ public class AccelerometerActivity extends AppCompatActivity {
                 txtStatus.setText(x + "," + y + "," + z);
                 try {
                     //perform your database operations here ...
-                    db.execSQL("insert into "+TABLE+" (x,y,z) values ('" + x + "', '" + y + "','" + z + "' );");
+                    db.execSQL("insert into " + TABLE + " (x,y,z) values ('" + x + "', '" + y + "','" + z + "' );");
                     //db.setTransactionSuccessful(); //commit your changes
                 } catch (SQLiteException e) {
                     //report problem
