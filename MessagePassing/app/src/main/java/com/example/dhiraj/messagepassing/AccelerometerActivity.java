@@ -429,7 +429,7 @@ public class AccelerometerActivity extends AppCompatActivity {
             }
 
             /* Convert the Bytes read to a String. */
-            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/" + "Mydata/svellangDatabase_test"));
+            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/" + "Mydata/svellangDatabase"));
             // Select storage location
             //Context context = this;
             //fos = context.openFileOutput(Environment.getExternalStorageDirectory() + File.separator +"Downloaded.txt", Context.MODE_PRIVATE);
@@ -444,8 +444,13 @@ public class AccelerometerActivity extends AppCompatActivity {
                     uploadButton.setEnabled(true);
                     downloadButton.setEnabled(true);
                     recordButton.setEnabled(true);
+                    Intent intent = new Intent(AccelerometerActivity.this, InputActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    Toast.makeText(AccelerometerActivity.this, "File download is completed ", Toast.LENGTH_LONG).show();
                 }
             });
+
         } catch (IOException e) {
             e.printStackTrace();
 
