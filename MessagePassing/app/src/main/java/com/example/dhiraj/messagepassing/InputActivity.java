@@ -48,6 +48,9 @@ public class InputActivity extends AppCompatActivity {
                 if(Name.equals("") || ID.equals("") || Age.equals("")){
                     Toast.makeText(InputActivity.this,"One or more required field(s) are empty",Toast.LENGTH_LONG).show();
                 }
+                else if(Name.contains(" ")){
+                    Toast.makeText(InputActivity.this,"Enter name without space",Toast.LENGTH_LONG).show();
+                }
                 else{
                     Sex = ((RadioButton)findViewById(sexSelect.getCheckedRadioButtonId())).getText().toString();
                     dbName = Name + "_"+ID+"_"+Age+"_"+Sex;
