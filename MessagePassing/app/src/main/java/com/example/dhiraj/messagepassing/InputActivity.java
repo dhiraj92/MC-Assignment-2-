@@ -45,7 +45,6 @@ public class InputActivity extends AppCompatActivity {
                 Name = nameText.getText().toString();
                 ID = idText.getText().toString();
                 Age = ageText.getText().toString();
-//                if(Name=="" || ID=="" || Age==""){
                 if(Name.equals("") || ID.equals("") || Age.equals("")){
                     Toast.makeText(InputActivity.this,"One or more required field(s) are empty",Toast.LENGTH_LONG).show();
                 }
